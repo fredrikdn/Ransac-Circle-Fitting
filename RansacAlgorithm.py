@@ -2,7 +2,7 @@ import random
 from statistics import mean
 import math
 import matplotlib.pyplot as plt
-
+import matplotlib.patches as mpatches
 
 f = open('dataset2.txt')
 #lists of datapoint pairs
@@ -30,16 +30,19 @@ y = 0
 
 n = 10
 k = 10000
-t = 0.01
+t = 0.015
 d = len(xList) / 100
 
 iterations = 0
 
+#Updated model
 x_b = 0
 y_b = 0
 r_b = 0
 bestErr = 999
-betterCount = 1
+updateErrCount = 1
+
+print("Estimation:")
 while iterations < k:
 
     iterations += 1
@@ -79,7 +82,8 @@ while iterations < k:
             r += math.sqrt((x - xList[i]) ** 2 + (y - yList[i]) ** 2)
         r = r/len(inliers)
 
-        #calculate lsm
+        #calculate lsm for the inliers
+
         lsm = 0
         for i in inliers:
             lsm += (math.sqrt((x - xList[i]) ** 2 + (y - yList[i]) ** 2) - r) ** 2
@@ -89,11 +93,25 @@ while iterations < k:
             y_b = y
             r_b = r
             bestErr = lsm
-            print(str(betterCount) + ": found better estimation: " + str(bestErr) )
-            betterCount += 1
+            print("Number of updated errors: " + str(updateErrCount) + " - updated to: " + str(bestErr))
+            updateErrCount += 1
 
+
+print(" ")
 print("Inliers: " + str(len(inliers)))
+print("Iterations: " + str(iterations))
+print(" ")
+print("Estimated model parameters:")
+print("Radius: " + str(r_b) + ", X: " + str(x_b) + ", Y: " + str(y_b))
+
+#Points
 plt.scatter(xList, yList, c='b', marker='o', label='Datapoints')
 plt.scatter([xList[i] for i in inliers], [yList[i] for i in inliers], c='r', marker='x', label='Inliers')
+
+#Model
+circle = plt.Circle((x_b, y_b), r_b, color='r', linewidth=2, fill=False)
+plt.gcf().gca().add_artist(circle)
+circle_leg = mpatches.Patch(color='r', label="Model")
+
 plt.legend(loc='upper left')
 plt.show()
